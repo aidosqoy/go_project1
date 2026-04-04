@@ -25,7 +25,7 @@ type token struct {
 
 func main() {
 	if len(os.Args) != 3 {
-		fmt.Println("Usage: go run . sample.txt result.txt")
+		fmt.Println("Usage: go run . sample.txt output.txt")
 		return
 	}
 
@@ -92,7 +92,6 @@ func splitWords(text string) []token {
 		start := i
 		for i < len(runes) &&
 			!unicode.IsSpace(runes[i]) &&
-			runes[i] != '(' &&
 			runes[i] != '\'' &&
 			!isPunctuation(runes[i]) {
 			i++
@@ -174,6 +173,7 @@ func formatText(words []token) string {
 			}
 			sb.WriteString(word.value)
 		}
+
 	}
 
 	return sb.String()
