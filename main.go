@@ -53,6 +53,7 @@ func main() {
 func splitWords(text string) []token {
 	var words []token
 	runes := []rune(text)
+
 	for i := 0; i < len(runes); {
 		current := runes[i]
 		if current == '\r' {
@@ -94,10 +95,25 @@ func splitWords(text string) []token {
 			!unicode.IsSpace(runes[i]) &&
 			runes[i] != '\'' &&
 			!isPunctuation(runes[i]) {
+			if runes[i] == '(' {
+				value, next, ok := readCommand(runes, i)
+				if ok {
+					if start < i {
+						words = append(words, token{kind: wordToken, value: string(runes[start:i])})
+					}
+					words = append(words, token{kind: commandToken, value: value})
+					i = next
+					start = i
+					continue
+				}
+			}
 			i++
 		}
-		words = append(words, token{kind: wordToken, value: string(runes[start:i])})
+		if start < i {
+			words = append(words, token{kind: wordToken, value: string(runes[start:i])})
+		}
 	}
+
 	return words
 }
 
@@ -173,7 +189,6 @@ func formatText(words []token) string {
 			}
 			sb.WriteString(word.value)
 		}
-
 	}
 
 	return sb.String()
@@ -183,6 +198,7 @@ func parseCommand(word string) (string, int, bool) {
 	if !isCommand(word) {
 		return "", 0, false
 	}
+
 	cmd := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(word, "("), ")"))
 	parts := strings.Split(cmd, ",")
 	if len(parts) == 0 || len(parts) > 2 {
