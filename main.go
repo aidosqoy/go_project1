@@ -134,23 +134,26 @@ func processWords(words []token) []token {
 
 		applied := 0
 		for j := len(result) - 1; j >= 0 && applied < count; j-- {
-			if result[j].kind != wordToken {
+			switch result[j].kind {
+			case wordToken:
+				switch action {
+				case "cap":
+					result[j].value = capWord(result[j].value)
+				case "up":
+					result[j].value = upWord(result[j].value)
+				case "low":
+					result[j].value = lowWord(result[j].value)
+				case "hex":
+					result[j].value = hexToDec(result[j].value)
+				case "bin":
+					result[j].value = binToDec(result[j].value)
+				}
+				applied++
+			case punctuationToken, newlineToken, quoteToken:
+				j = -1
+			default:
 				continue
 			}
-
-			switch action {
-			case "cap":
-				result[j].value = capWord(result[j].value)
-			case "up":
-				result[j].value = upWord(result[j].value)
-			case "low":
-				result[j].value = lowWord(result[j].value)
-			case "hex":
-				result[j].value = hexToDec(result[j].value)
-			case "bin":
-				result[j].value = binToDec(result[j].value)
-			}
-			applied++
 		}
 	}
 
